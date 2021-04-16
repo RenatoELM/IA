@@ -1,0 +1,199 @@
+#include <iostream>
+#include <iostream>
+#include <stdlib.h>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
+using namespace std;
+
+class arista;
+
+class nodo{
+  public:
+  int valor;
+  nodo* sig;
+  arista* ady;
+  friend class grafo;
+};
+
+class arista{
+    arista *sig;
+    nodo *ady;
+    friend class grafo;
+};
+
+class grafo{
+    nodo *h;
+  public:
+    void inicializa();
+    bool vacio();
+    nodo *get_nodo(int valor);
+    void insertar_nodo(int valor);
+    void insertar_arista(nodo* inicio, nodo* fin);
+    void elim_arista(nodo* inicio, nodo* fin);
+    void elim_nodo(nodo* n);
+};
+
+void grafo :: inicializa(){
+  h = NULL;
+}
+
+bool grafo :: vacio(){
+  if(h == NULL){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+nodo *grafo :: get_nodo(int _valor){
+  nodo *aux;
+  aux = h;
+  while(aux != NULL){
+    if(aux -> valor == _valor){
+      return aux;
+    }
+    aux = aux -> sig;
+  }
+  return NULL;
+}
+
+void grafo :: insertar_nodo(int _valor){
+  nodo *n = new nodo;
+  n -> valor = _valor;
+  n -> sig = NULL;
+  n -> ady = NULL;
+  if (vacio()){
+    h = n;
+  }
+  else{
+    nodo *aux;
+    aux = h;
+    while(aux -> sig != NULL){
+      aux = aux -> sig;
+    }
+    aux -> sig = n;
+  }
+}
+
+void grafo :: insertar_arista(nodo* inicio, nodo* fin){
+  arista *n = new arista;
+  n -> sig = NULL;
+  n -> ady = NULL;
+  arista* aux;
+  aux = inicio -> ady;
+  if(aux == NULL){
+    inicio -> ady = n;
+    n -> ady = fin;
+  }
+  else{
+    while(aux -> ady != NULL){
+      aux = aux -> sig;
+    }
+    aux -> sig = n;
+    n -> ady = fin;
+  }
+}
+
+void grafo :: elim_arista(nodo* inicio, nodo* fin){
+  arista* act;
+  arista* ant;
+  int comprobar = 0;
+  act = inicio -> ady;
+  if(act == NULL){
+    cout << "El nodo de inicio no tiene aristas" << endl;
+  }
+  else if(act -> ady == fin){
+    inicio -> ady = act -> sig;
+    delete(act);
+  }
+  else{
+    while(act != NULL){
+      if(act -> ady == fin){
+        comprobar = 1;
+        ant -> sig = act -> sig;
+        delete(act);
+        break;
+      }
+      ant = act;
+      act = act -> sig;
+    }
+    if(comprobar == 0){
+      cout << "Esos nodos no estan conectados" << endl;
+    }
+  }
+}
+
+void grafo :: elim_nodo(nodo* n){
+  nodo* act;
+  nodo* ant;
+  arista* aux;
+  act = h;
+  while(act != NULL){
+    aux = act -> ady;
+    while(aux != NULL){
+      if(aux -> ady == n){
+        elim_arista(act, aux -> ady);
+        break;
+      }
+      aux = aux -> sig;
+    }
+    act = act -> sig;
+  }
+  //
+  act = h;
+  if(h == n){
+    h = h -> sig;
+    delete(act);
+  }
+  else{
+    while(act != n){
+      ant = act;
+      act = act -> sig;
+    }
+    ant -> sig = act -> sig;
+    delete(act);
+  }
+}
+
+int num_al(){
+  int numal;
+  srand((unsigned)time(0));
+  numal = (rand()%9999)+1;
+  return numal;
+}
+
+void all(grafo grafo_r, int num_buscar){
+  int x = 1;
+  int y = 1;
+  for(int i = 0; i < 100; i++){
+    for(int j = 0; j < 100; j++){
+      grafo_r.insertar_nodo(x);
+      x=x+1;
+    }
+  }
+  while(x > 1){
+    grafo_r.insertar_arista(grafo_r.get_nodo(y), grafo_r.get_nodo(y+1));
+    x = x - 1;
+    y = y + 1;
+  }
+  grafo_r.insertar_arista(grafo_r.get_nodo(10000), grafo_r.get_nodo(1));
+  if(grafo_r.get_nodo(num_buscar)){
+    cout << "encontrado" << endl;
+  }
+  else{
+    cout << "no encontrado" << endl;
+  }
+}
+
+int main() {
+  grafo grafo_r;
+  grafo_r.inicializa();
+  int x = num_al(); //variable aleatoria para la eliminacion de nodos
+  cout << x << endl;
+  all(grafo_r, 9999); //funcion para crear el grafo y un numero para probar que dicho numero esta en el grafo
+  //grafo_r.elim_nodo(grafo_r.get_nodo(x)); funcion para eliminar el nodo con sus aristas(no funciona)
+  cout << "funciona" << endl;
+  return 0;
+}
