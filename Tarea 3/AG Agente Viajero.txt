@@ -1,0 +1,294 @@
+#include <iostream>
+#include <stdlib.h>
+#include <cstdlib>
+#include <time.h>
+using namespace std;
+
+class arista;
+
+class nodo{
+  public:
+  int valor;
+  nodo* sig;
+  arista* ady;
+  friend class grafo;
+};
+
+class arista{
+    int valor;
+    arista *sig;
+    nodo *ady;
+    friend class grafo;
+};
+
+class grafo{
+    nodo *h;
+  public:
+    void inicializa();
+    bool vacio();
+    nodo *get_nodo(int valor);
+    void insertar_nodo(int matriz[][7], int valor);
+    void insertar_arista(int matriz[][7], nodo* inicio, nodo* fin, int valor);
+    int get_distancia(nodo* inicio, nodo* fin);
+    int aptitud(int x[][7], int num_pob);
+    void combinacion(int x[][7]);
+    void mutacion(int x[][7]);
+};
+
+void grafo :: inicializa(){   //Inicializarel grafo en nulo
+  h = NULL;
+}
+
+bool grafo :: vacio(){    //Verifica si el grafo esta vacio
+  if(h == NULL){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+nodo *grafo :: get_nodo(int valor){   //Obtener un nodo mediante el valor de dicho nodo
+  nodo *aux;
+  aux = h;
+  while(aux != NULL){
+    if(aux -> valor == valor){
+      return aux;
+    }
+    aux = aux -> sig;
+  }
+  return NULL;
+}
+
+void grafo :: insertar_nodo(int matriz[][7], int _valor){   //Insertar nodos en el grafo
+  nodo *n = new nodo;
+  n -> valor = _valor;
+  n -> sig = NULL;
+  n -> ady = NULL;
+  if (vacio()){
+    h = n;
+  }
+  else{
+    nodo *aux;
+    aux = h;
+    while(aux -> sig != NULL){
+      aux = aux -> sig;
+    }
+    aux -> sig = n;
+  }
+}
+
+void grafo :: insertar_arista(int matriz[][7], nodo* inicio, nodo* fin, int valor){ //Insertar aristas en el grafo
+  arista *n = new arista;
+  n -> valor = valor;
+  n -> sig = NULL;
+  n -> ady = NULL;
+  arista* aux;
+  aux = inicio -> ady;
+  if(aux == NULL){
+    inicio -> ady = n;
+    n -> ady = fin;
+  }
+  else{
+    while(aux -> sig != NULL){
+      aux = aux -> sig;
+    }
+    aux -> sig = n;
+    n -> ady = fin;
+  }
+}
+
+int grafo :: get_distancia(nodo* inicio, nodo* fin){    //Distancia entre las ciudades
+  nodo *aux_i;
+  nodo *aux_f;
+  aux_i = inicio;
+  aux_f = fin;
+  int a = 0;
+  int dist = 0;
+  while(a == 0){
+    if(aux_i->ady->ady == aux_f){
+      dist = aux_i->ady->valor;
+      a = 1;
+    }
+    else{
+      aux_i->ady = aux_i->ady->sig;
+    }
+  }
+  return dist;
+}
+
+int grafo :: aptitud(int x[][7], int num_pob){   //Entra una poblacion de 4 elementos y salen los 2 mas eficientes
+  int *pob = new int[num_pob];
+  for(int i = 0; i < num_pob; i++){
+    pob[i] = 0;
+  }
+  int min1 = 0;
+  int min2 = 0;
+  for(int i = 0; i < num_pob; i++){
+    int aux = 0;
+    if(i == 0){
+      for(int j = 0; j < 6; j++){
+        cout << get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1])) << endl;
+        aux = get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1]));
+        pob[i] = pob[i] + aux;
+      }
+      cout << get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob])) << endl;
+      aux = get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob]));
+      pob[i] = pob[i] + aux;
+      min1 = pob[i];
+    }
+    else if(i == 1){
+      for(int j = 0; j < 6; j++){
+        cout << get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1])) << endl;
+        aux = get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1]));
+        pob[i] = pob[i] + aux;
+      }
+      cout << get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob])) << endl;
+      aux = get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob]));
+      pob[i] = pob[i] + aux;
+      min2 = pob[i];
+    }
+    else if(i == 2){
+      for(int j = 0; j < 6; j++){
+        cout << get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1])) << endl;
+        aux = get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1]));
+        pob[i] = pob[i] + aux;
+      }
+      cout << get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob])) << endl;
+      aux = get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob]));
+      pob[i] = pob[i] + aux;
+      if(pob[i] < min1){
+        min1 = pob[i];
+      }
+      else if(pob[i] < min2){
+        min2 = pob[i];
+      }
+    }
+    else if(i == 3){
+      for(int j = 0; j < 6; j++){
+        cout << get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1])) << endl;
+        aux = get_distancia(get_nodo(x[i][j]), get_nodo(x[i][j+1]));
+        pob[i] = pob[i] + aux;
+      }
+      cout << get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob])) << endl;
+      aux = get_distancia(get_nodo(x[i][num_pob]), get_nodo(x[i][num_pob-num_pob]));
+      pob[i] = pob[i] + aux;
+      if(pob[i] < min1){
+        min1 = pob[i];
+      }
+      else if(pob[i] < min2){
+        min2 = pob[i];
+      }
+    }
+    int *pob_salida = new int[2];
+    pob_salida[0] = min1;
+    pob_salida[1] = min2;
+    return pob_salida[0];
+    return pob_salida[1];
+    //return pob[i];
+  }
+  return 0;
+}
+
+void swap(int *a, int *b){    //funcion para hacer el intercambio
+  int c;
+  c = *a;
+  *a = *b;
+  *b = c;
+}
+
+void grafo :: combinacion(int x[][7]){    //Entra una poblacion de 2 elementos y salen 4 elementos
+  int aux1[1][7];
+  int aux2[1][7];
+  int aux3[1][7];
+  int aux4[1][7];
+  for(int i = 0; i < 7; i++){
+    aux1[0][i] = x[0][i];
+    aux2[0][i] = x[1][i];
+    aux3[0][i] = x[0][i];
+    aux4[0][i] = x[1][i];
+  }
+  for(int j = 0; j < 7; j++){         //Combinacion 1, salen dos elemnetos
+    if(aux1[0][j] == aux2[0][j]){
+      swap(aux1[0][j], aux2[0][j+1]);
+      swap(aux1[0][j+1], aux2[0][j]);
+      j++;
+    }
+    else{
+      swap(aux1[0][j], aux2[0][j]);
+    }
+  }
+  swap(aux1[0][6], aux2[0][6]);
+
+  for(int i = 0; i < 3; i++){         //Combinacion 2, salen 2 elementos
+    swap(aux3[0][i], aux4[0][i+4]);
+  }
+
+  for(int i = 0; i < 7; i++){         //Salen los 4 nuevos elementos de la poblacion
+    x[0][i] = aux1[0][i];
+    x[1][i] = aux2[0][i];
+    x[2][i] = aux3[0][i];
+    x[3][i] = aux4[0][i];
+  }
+}
+
+void grafo :: mutacion(int x[][7]){   //Muta cada elemento cambiando 2 ciudades de posicion entre si en cada uno
+  int numal1, numal2;
+  srand(time(NULL));
+  for(int i = 0; i < 4; i++){
+    for(int j = 0; j < 7; j++){
+      numal1 = 1 + rand()%(7);
+      numal2 = 1 + rand()%(7);
+      if(numal1 == numal2){
+        j--;
+      }
+      else{
+        swap(x[i][numal1], x[i][numal2]);
+      }
+    }
+  }
+}
+
+int matriz[7][7]={{0 ,13,8 ,20,4 ,23,15},   //Matriz de adyacencia entre ciudades
+                  {13,0 ,5 ,17,22,1 ,11},
+                  {8 ,5 ,0 ,2 ,25,7 ,14},
+                  {20,17,2 ,0 ,10,28, 6},
+                  {4 ,22,25,10,0 ,21,27},
+                  {23,1 ,7 ,28,21,0 ,18},
+                  {15,11,14,6 ,27,18,0 }};
+
+int main() {
+  for(int i = 0; i < 7; i++){
+    for(int j = 0; j < 7; j++){
+      if(matriz[i][j] < 10){
+        cout << matriz[i][j] << "   ";
+      }
+      else{
+        cout << matriz[i][j] << "  ";
+      }
+    }
+    cout << endl;
+  }
+  grafo grafo_r;
+  grafo_r.inicializa();
+  for(int i = 1; i < 8; i++){
+    grafo_r.insertar_nodo(matriz, i);
+  }
+  for(int i = 1; i < 8; i++ ){
+  int j = 1;
+    while(j < 8){
+      grafo_r.insertar_arista(matriz, grafo_r.get_nodo(i), grafo_r.get_nodo(j),matriz[i-1][j-1]);
+      j++;
+    }
+  }
+  int xt[4][7] = {{1,2,3,4,5,6,7},
+                  {1,6,3,5,2,7,4},
+                  {1,3,7,5,2,4,6},
+                  {1,5,6,4,7,3,2}};
+  for(int i = 0; i < 5; i++){     //5 Iteraciones
+    grafo_r.aptitud(xt, 4);
+    grafo_r.combinacion(xt);
+    grafo_r.mutacion(xt);
+  }
+  return 0;
+}
